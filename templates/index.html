@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nigeria Sign Language Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; text-align: center; }
+        .result { font-size: 3em; margin: 20px; padding: 20px; border-radius: 10px; }
+        .confidence { font-size: 1.5em; color: #666; }
+        .high-confidence { background-color: #d4edda; color: #155724; }
+        .medium-confidence { background-color: #fff3cd; color: #856404; }
+        .low-confidence { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Nigeria Sign Language Live Test</h1>
+    
+    <div id="result" class="result">
+        <span id="sign">--</span>
+        <div class="confidence" id="confidence">--%</div>
+    </div>
+    
+    <div style="margin: 20px;">
+        <img src="{{ url_for('video_feed') }}" width="320" style="border: 2px solid #333;">
+    </div>
+    
+    <p>Show signs A-Z to the ESP32 camera</p>
+
+    <script>
+        function updatePrediction() {
+            fetch('/api/prediction')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('sign').textContent = data.sign;
+                    document.getElementById('confidence').textContent = 
+                        (data.confidence * 100).toFixed(1) + '%';
+                    
+                    // Update styling based on confidence
+                    const resultDiv = document.getElementById('result');
+                    resultDiv.className = 'result ';
+                    if (data.confidence > 0.7) resultDiv.className += 'high-confidence';
+                    else if (data.confidence > 0.4) resultDiv.className += 'medium-confidence';
+                    else resultDiv.className += 'low-confidence';
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        // Update every 500ms
+        setInterval(updatePrediction, 500);
+        updatePrediction();
+    </script>
+</body>
+</html>

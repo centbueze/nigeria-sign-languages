@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NSL Detection Preview</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #camera-feed { width: 640px; border: 2px solid #333; }
+        #results { margin: 20px; font-size: 1.2em; }
+        button { padding: 10px 20px; font-size: 1em; }
+    </style>
+</head>
+<body>
+    <h1>Sign Language Detection</h1>
+    <img id="camera-feed" src="{{ url_for('video_feed') }}">
+    <div id="results">Position your hand and capture</div>
+    <button onclick="capture()">CAPTURE</button>
+
+    <script>
+        function capture() {
+            fetch('/upload', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.sign) {
+                        document.getElementById('results').innerHTML = 
+                            `Detected: <strong>${data.sign}</strong><br>
+                             Confidence: ${(data.confidence * 100).toFixed(1)}%`;
+                    } else {
+                        document.getElementById('results').innerHTML = 
+                            "No sign detected - try again";
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
